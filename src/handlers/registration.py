@@ -4,16 +4,16 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import Message
 from src.states.fsm_states import FSMFillForm
-from src.database.add_student import insert_student
+from src.database.add import insert_student
 import sqlite3
 
 
 registration_router = Router()
 
 #Ввод ВК    
-@registration_router.message(F.text == "Зарегистрироваться на мероприятие",StateFilter(default_state))
+@registration_router.message(F.text == "Зарегистрироваться в системе",StateFilter(default_state))
 async def call_data(message:Message,state:FSMContext):
-    await message.answer(text='Пожалуйста, введите вашу фамилию')
+    await message.answer(text='Введите вашу фамилию')
     await state.set_state(FSMFillForm.fill_surname)
     
 
@@ -21,7 +21,7 @@ async def call_data(message:Message,state:FSMContext):
 @registration_router.message(StateFilter(FSMFillForm.fill_surname), F.text.isalpha())
 async def process_surname_sent(message: Message, state: FSMContext):
     await state.update_data(surname=message.text)
-    await message.answer(text='Спасибо!\n\nА теперь введите ваше имя:')
+    await message.answer(text='Введите ваше имя:')
     await state.set_state(FSMFillForm.fill_name)
 
 
@@ -40,7 +40,7 @@ async def warning_not_surname(message: Message):
 @registration_router.message(StateFilter(FSMFillForm.fill_name), F.text.isalpha())
 async def process_name_sent(message: Message, state: FSMContext):
     await state.update_data(name=message.text)
-    await message.answer(text='Спасибо!\n\nА теперь введите ваше отчество:')
+    await message.answer(text='Введите ваше отчество:')
     await state.set_state(FSMFillForm.fill_mid_name)
 
 
@@ -59,7 +59,7 @@ async def warning_not_name(message: Message):
 @registration_router.message(StateFilter(FSMFillForm.fill_mid_name), F.text.isalpha())
 async def process_mid_name_sent(message: Message, state: FSMContext):
     await state.update_data(mid_name=message.text)
-    await message.answer(text='Спасибо!\n\nА теперь введите ваш курс:')
+    await message.answer(text='Введите ваш курс:')
     await state.set_state(FSMFillForm.fill_grade)
     
 #неправильный ввод отчества
@@ -78,7 +78,7 @@ async def warning_not_mid_name(message: Message):
             lambda x: x.text.isdigit() and 1 <= int(x.text) <= 4)
 async def process_age_sent(message: Message, state: FSMContext):
     await state.update_data(grade=message.text)
-    await message.answer(text='Спасибо!\n\nА теперь введите вашу группу:')
+    await message.answer(text='Введите вашу группу:')
     await state.set_state(FSMFillForm.fill_group)
 
 
@@ -97,20 +97,17 @@ async def warning_not_age(message: Message):
 async def process_group_sent(message: Message, state: FSMContext):
     await state.update_data(group=message.text)
     data = await state.get_data()
-    student_tg_username = data.get("student_tg_username")
+    student_tg_username = message.from_user.username
+    student_tg_id = message.from_user.id
     name = data.get("name")
     surname = data.get("surname")
     mid_name = data.get("mid_name")
     grade = data.get("grade")
     student_group = data.get("group")
-    
-    
-    '''conn = sqlite3.connect('src/students.db')
+    conn = sqlite3.connect("src/itctms_system.db")
     cursor = conn.cursor()
     # Проверяем, есть ли пользователь в таблице
-    cursor.execute("SELECT * FROM students WHERE student_tg_username=?", (student_tg_username,))
-    existing_user = cursor.fetchone()
-    cursor.execute("SELECT * FROM students WHERE student_tg_username = ?", (student_tg_username,))
+    cursor.execute("SELECT * FROM students WHERE telegram_id=?", (student_tg_id,))
     existing_user = cursor.fetchone()
     
     
@@ -119,14 +116,24 @@ async def process_group_sent(message: Message, state: FSMContext):
         await state.clear()
     else:
         # Вызов функции для добавления данных в базу данных
-        insert_student(student_tg_username, name, surname, mid_name, grade, student_group)
+        await insert_student(student_tg_id,student_tg_username, name, surname, mid_name, grade, student_group)
         await state.clear()
         await message.answer(
         text='Спасибо! Ваши данные сохранены!\n\n'
-             'Вы вышли из машины состояний
-    )'''
+             'Вы вышли из процесса регистрации'
+    )
 
 
+@registration_router.message(Command(commands='showdata'), StateFilter(default_state))
+async def show_data(message: Message, state: FSMContext):
+    data = await state.get_data()
+    await message.answer(
+        f"Фамилия: {data.get('surname')}\n"
+        f"Имя: {data.get('name')}\n"
+        f"Отчество: {data.get('mid_name')}\n"
+        f"Курс: {data.get('grade')}\n"
+        f"Группа: {data.get('group')}"
+    )
    
 
     
