@@ -1,26 +1,21 @@
 from aiogram import Router
-from aiogram.fsm.context import FSMContext
-from aiogram.filters import Command,CommandStart,StateFilter
+from aiogram.filters import CommandStart
 from aiogram.types import Message
-from aiogram.fsm.state import default_state
 from src.keyboards.reply import button
 
 
 menu_router = Router()
 
 
-@menu_router.message(CommandStart(), StateFilter(default_state))
+@menu_router.message(CommandStart())
 async def process_start_command(message: Message):
     await message.answer(
-        text='Этот бот, который регистрирует людей в системе ИЦТМС\n'
-             'Чтобы перейти к заполнению данных о себе - '
-             'Нажмите на кнопку "Зарегистрироваться в системе\n\n'
-             'Для добавления мероприятия в список мероприятий - нажмите на кнопку "Добавить мероприятие"\n\n'
-             'Для отмены действия- введите команду /cancel',
+        text='Это бот, предназаченный для работы c системой учёта достижений и активности студентов ИЦТМС на мероприятиях \n'
+             'Нажмите на кнопку "Вход в систему" для запуска бота\n\n',
         reply_markup=button
     )
 
-@menu_router.message(Command(commands='cancel'), ~StateFilter(default_state))
+'''@menu_router.message(Command(commands='cancel'), ~StateFilter(default_state))
 async def process_cancel_command_state(message: Message, state: FSMContext):
     await message.answer(
         text='Вы вышли из процесса регистрации\n\n'
@@ -37,4 +32,4 @@ async def process_cancel_command(message: Message):
     await message.answer(
         text='Отменять нечего. Вы вне процесса регистрации\n\n'
 
-    )
+    )'''
