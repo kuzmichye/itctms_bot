@@ -1,10 +1,10 @@
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage, Redis
-from handlers.main_menu import *
-from handlers.registration import registration_router
-from handlers.main_menu import menu_router
-from database.work_students import db_start
+from src.handlers.main_menu import *
+from src.handlers.registration import registration_router
+from src.handlers.main_menu import menu_router
+from src.database.work_students import db_start
 import os
 import asyncio
 import logging
