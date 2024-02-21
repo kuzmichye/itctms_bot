@@ -115,9 +115,16 @@ async def process_registration(message: Message, state: FSMContext):
     event_name = message.text
     student_tg_id = message.from_user.id
     cursor.execute("SELECT event_id FROM events WHERE name = ?", (event_name,))
-    event_id = cursor.fetchone()[0]  # Получаем event_id из результата запроса
+    event_row = cursor.fetchone()
+    
+    if event_row is None:
+        await message.answer("Мероприятий нету!")
+        return
+    
+    event_id = event_row[0]  # Получаем event_id из результата запроса
     cursor.execute("SELECT * FROM registrations WHERE tg_id = ? AND event_id = ?", (student_tg_id, event_id))
     existing_registration = cursor.fetchone()
+    
     if existing_registration:
         await message.answer("Вы уже зарегистрированы на это мероприятие")
     else:
@@ -127,6 +134,7 @@ async def process_registration(message: Message, state: FSMContext):
                            (student_tg_id, event_id, registration_time, registration_platform))
         conn.commit()
         await message.answer("Вы успешно зарегистрированы на мероприятие!")
+
    
 
 # кнопка Назад в меню после регистрации на мероприятие
