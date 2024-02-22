@@ -14,7 +14,7 @@ import sys
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-redis = Redis(host='localhost',port = 6379)
+redis = Redis(host='127.0.0.1',port = 6379)
 storage = RedisStorage(redis=redis)
 
 
