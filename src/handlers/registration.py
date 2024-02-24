@@ -402,10 +402,13 @@ async def process_group_sent(message: Message, state: FSMContext):
         await state.set_state(RegistrationState.opening_menu)
         await message.answer(
         text='Спасибо! Ваши данные сохранены!\n\n'
-             'Вы вышли из процесса добавления'
+             'Вы вышли из процесса добавления',reply_markup = button_variety
+        
     )
     except sqlite3.IntegrityError:
-        await message.answer("Мероприятие с таким именем уже существует. Пожалуйста, введите другое имя мероприятия.")
+        await state.set_state(RegistrationState.opening_menu)
+        await message.answer("Мероприятие с таким именем уже существует. Пожалуйста, введите другое имя мероприятия.",reply_markup = button_variety)
+        
 
     
 #неправильный ввод количества очков
