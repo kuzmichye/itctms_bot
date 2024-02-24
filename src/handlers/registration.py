@@ -119,7 +119,8 @@ async def process_registration(message: Message, state: FSMContext):
     
     if event_row is None:
         await message.answer("Мероприятий нету!")
-        return
+        await state.set_state(RegistrationState.opening_menu)
+        return 
     
     event_id = event_row[0]  # Получаем event_id из результата запроса
     cursor.execute("SELECT * FROM registrations WHERE tg_id = ? AND event_id = ?", (student_tg_id, event_id))
