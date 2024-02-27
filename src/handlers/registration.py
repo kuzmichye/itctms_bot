@@ -170,7 +170,7 @@ async def cancel_registration_event(message:Message,state:FSMContext):
 @registration_router.message((F.text != "Назад"),StateFilter(RegistrationState.show_cancel_events))
 async def process_cancel_registration(message: Message, state: FSMContext):
     event_name = message.text
-    cursor.execute("SELECT event_id FROM events WHERE name = ?", (event_name,))
+    cursor.execute("SELECT name FROM events WHERE datetime(registration_expire_date) > datetime('now')")
     event_id = cursor.fetchone()[0]
     student_tg_id = message.from_user.id
 
