@@ -106,6 +106,7 @@ async def process_current_events(message: Message, state: FSMContext):
         await message.answer("Выберите мероприятие:", reply_markup=keyboard)
     else:
         await message.answer("На данный момент нет текущих мероприятий")
+        await state.set_state(RegistrationState.opening_menu)
     
     
 
@@ -116,12 +117,6 @@ async def process_registration(message: Message, state: FSMContext):
     student_tg_id = message.from_user.id
     cursor.execute("SELECT event_id FROM events WHERE name = ?", (event_name,))
     event_row = cursor.fetchone()
-    
-    if event_row is None:
-        await message.answer("Мероприятий нету!")
-        await state.set_state(RegistrationState.opening_menu)
-        return 
-    
     event_id = event_row[0]  # Получаем event_id из результата запроса
     cursor.execute("SELECT * FROM registrations WHERE tg_id = ? AND event_id = ?", (student_tg_id, event_id))
     existing_registration = cursor.fetchone()
@@ -156,7 +151,7 @@ async def go_back_to_events_menu(message: Message, state: FSMContext):
 async def cancel_registration_event(message:Message,state:FSMContext):
     await state.set_state(RegistrationState.show_cancel_events)
     student_tg_id = message.from_user.id
-    cursor.execute("SELECT events.name FROM registrations JOIN events ON registrations.event_id = events.event_id WHERE registrations.tg_id = ?", (student_tg_id,))
+    cursor.execute("SELECT events.name FROM registrations JOIN events ON registrations.event_id = events.event_id WHERE registrations.tg_id = ? AND events.registration_expire_date > datetime('now')", (student_tg_id,))
     event_names = cursor.fetchall()
     if len(event_names)>0:
         buttons = [KeyboardButton(text=row[0]) for row in event_names]
@@ -194,9 +189,9 @@ async def go_back_to_events_menu(message: Message, state: FSMContext):
     rows = cursor.fetchall()
     buttons = [KeyboardButton(text=row[0]) for row in rows]
     buttons_back = KeyboardButton(text="Назад в меню")
-    cancel_button = KeyboardButton(text = "Отменить")
+    cancel_button = KeyboardButton(text = "Отмена регистрации")
     keyboard = ReplyKeyboardMarkup(keyboard=[[button] for button in buttons] 
-                                                + [[buttons_back] +[]],resize_keyboard=True, one_time_keyboard=False)
+                                                + [[buttons_back] +[cancel_button]],resize_keyboard=True, one_time_keyboard=False)
     await message.answer("Выберите мероприятие:", reply_markup=keyboard)
     await state.set_state(RegistrationState.show_current_events)
     
@@ -252,6 +247,7 @@ async def process_current_events(message: Message, state: FSMContext):
         await message.answer("Выберите мероприятие:", reply_markup=keyboard)
     else:
         await message.answer("На данный момент нет текущих мероприятий")
+        await state.set_state(RegistrationState.opening_menu)
     
 
 #вывод для каждого мероприятий списков
