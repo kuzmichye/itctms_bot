@@ -38,8 +38,10 @@ async def start_command(message: Message, state: FSMContext):
             await message.answer(text = 'Перед вами список кнопок:\n\n'
                                        ' 1. <b>Список текущих мероприятий</b>\n'
                                        "Просмотрите список текущих мероприятий, на которые вы можете зарегистрироваться. Выберите интересующее мероприятие и присоединитесь к нему!\n\n"
-                                        '2. "<b>Мои мероприятия</b>":\n'
-                                    "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!", reply_markup=button_variety_simple,parse_mode=ParseMode.HTML)
+                                        '2. <b>Мои мероприятия</b>:\n'
+                                    "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!\n\n"
+                                        '3. <b>Посмотреть информацию о мероприятии</b>\n'
+                                    "Узнайте полную информацию о мероприятиях",reply_markup=button_variety_simple,parse_mode=ParseMode.HTML)
             await state.set_state(RegistrationState.opening_menu)
         else:
             await message.answer(text=welcome_message, reply_markup=button_variety)
@@ -51,7 +53,9 @@ async def start_command(message: Message, state: FSMContext):
                                     '3. <b>Список зарегистрировавшихся</b>:\n'
                                     "Узнайте информацию о людях, которые зарегистрировались на мероприятие. Нажмите на кнопку с мероприятием, и список людей будет перед вами\n\n"
                                     '4. <b>Добавить мероприятие</b>\n'
-                                    "Добавляет новое мероприятие в базу данных мероприятий",reply_markup=button_variety,parse_mode=ParseMode.HTML)
+                                    "Добавляет новое мероприятие в базу данных мероприятий\n\n"
+                                    '5. <b>Посмотреть информацию о мероприятии</b>\n'
+                                    "Узнайте полную информацию о мероприятиях",reply_markup=button_variety,parse_mode=ParseMode.HTML)
             await state.set_state(RegistrationState.opening_menu)
 
 
@@ -83,7 +87,9 @@ async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
                                        ' 1. <b>Список текущих мероприятий</b>\n'
                                        "Просмотрите список текущих мероприятий, на которые вы можете зарегистрироваться. Выберите интересующее мероприятие и присоединитесь к нему!\n\n"
                                         '2. "<b>Мои мероприятия</b>":\n'
-                                    "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!", reply_markup=button_variety_simple,parse_mode=ParseMode.HTML)
+                                    "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!\n\n"
+                                    '3. <b>Посмотреть информацию о мероприятии</b>\n'
+                                    "Узнайте полную информацию о мероприятиях",reply_markup=button_variety_simple,parse_mode=ParseMode.HTML)
         await state.set_state(RegistrationState.opening_menu)
     else:
         await callback.message.answer(text='Отлично!', reply_markup = button_variety)
@@ -95,7 +101,9 @@ async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
                                     '3. <b>Список зарегистрировавшихся</b>:\n'
                                     "Узнайте информацию о людях, которые зарегистрировались на мероприятие. Нажмите на кнопку с мероприятием, и список людей будет перед вами\n\n"
                                     '4. <b> Добавить мероприятие</b>\n'
-                                    "Добавляет новое мероприятие в базу данных мероприятий",reply_markup=button_variety,parse_mode=ParseMode.HTML)
+                                    "Добавляет новое мероприятие в базу данных мероприятий"
+                                    '5. <b>Посмотреть информацию о мероприятии</b>\n'
+                                    "Узнайте полную информацию о мероприятиях", reply_markup=button_variety,parse_mode=ParseMode.HTML)
         await state.set_state(RegistrationState.opening_menu)
         
 
