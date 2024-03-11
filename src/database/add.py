@@ -1,6 +1,6 @@
 import sqlite3
 
-db = sqlite3.connect("src/itctms_system.db")
+db = sqlite3.connect("src/itctms_system.db",isolation_level=None)
 cursor = db.cursor()
 
 
@@ -45,11 +45,6 @@ async def db_start():
 
     
 
-async def insert_event(name, date, place, kvota, info, details, registration_expire_date, points):
-     cursor.execute('''
-         INSERT INTO events (name, date, place, kvota, info, details, registration_expire_date, points)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-     ''', (name, date, place, kvota, info, details, registration_expire_date, points))
 
-     db.commit()
+
 

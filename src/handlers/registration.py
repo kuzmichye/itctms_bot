@@ -1,17 +1,18 @@
 from aiogram import F,Router
-from aiogram.types import Message,CallbackQuery
+from aiogram.types import Message,CallbackQuery,ReplyKeyboardRemove
 from aiogram.filters import StateFilter
 from src.keyboards.reply import keyboard_inline, button_variety,button_variety_simple
 from aiogram.fsm.context import FSMContext
 from src.states.fsm_states import RegistrationState
-from src.database.add import insert_event
 from aiogram.types import (KeyboardButton, ReplyKeyboardMarkup)
 from datetime import datetime
 from dotenv import load_dotenv
+from aiogram.enums import ParseMode
+
 import os
 import sqlite3
 
-conn = sqlite3.connect('src/itctms_system.db')
+conn = sqlite3.connect('src/itctms_system.db',isolation_level=None)
 cursor = conn.cursor()
     
 registration_router = Router()
@@ -34,19 +35,23 @@ async def start_command(message: Message, state: FSMContext):
         admin_id_2 = int(os.getenv("ADMIN_ID_2"))
         if not message.from_user.id in [admin_id_1,admin_id_2]:
             await message.answer(text=welcome_message, reply_markup=button_variety_simple)
-            await message.answer(text = '1. "Список текущих мероприятий":\n'
+            await message.answer(text = 'Перед вами список кнопок:\n\n'
+                                       ' 1. <b>Список текущих мероприятий</b>\n'
                                        "Просмотрите список текущих мероприятий, на которые вы можете зарегистрироваться. Выберите интересующее мероприятие и присоединитесь к нему!\n\n"
-                                        '2. "Мои мероприятия":\n'
-                                    "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!", reply_markup=button_variety_simple)
+                                        '2. "<b>Мои мероприятия</b>":\n'
+                                    "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!", reply_markup=button_variety_simple,parse_mode=ParseMode.HTML)
             await state.set_state(RegistrationState.opening_menu)
         else:
             await message.answer(text=welcome_message, reply_markup=button_variety)
-            await message.answer(text = '1. "Список текущих мероприятий":\n'
-                                       "Просмотрите список текущих мероприятий, на которые вы можете зарегистрироваться. Выберите интересующее мероприятие и присоединитесь к нему!\n\n"
-                                        '2. "Мои мероприятия":\n'
+            await message.answer(text = 'Перед вами список кнопок:\n\n'
+                                        '1. <b>Список текущих мероприятий</b>\n'
+                                       "Просмотрите список текущих мероприятий, на которые вы можете зарегистрироваться. Выберите интересующее мероприятие,нажмите на него и присоединяйтесь к нему!\n\n"
+                                        '2. <b>Мои мероприятия</b>\n'
                                     "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!\n\n"
-                                    '3. "Список зарегистрировавшихся":\n'
-                                    "Узнайте, количество человек, которые зарегистрировались на мероприятие. Нажмите на кнопку с мероприятием, и список людей будет перед вами",reply_markup=button_variety)
+                                    '3. <b>Список зарегистрировавшихся</b>:\n'
+                                    "Узнайте информацию о людях, которые зарегистрировались на мероприятие. Нажмите на кнопку с мероприятием, и список людей будет перед вами\n\n"
+                                    '4. <b>Добавить мероприятие</b>\n'
+                                    "Добавляет новое мероприятие в базу данных мероприятий",reply_markup=button_variety,parse_mode=ParseMode.HTML)
             await state.set_state(RegistrationState.opening_menu)
 
 
@@ -74,19 +79,23 @@ async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
     admin_id_2 = int(os.getenv("ADMIN_ID_2"))
     if not callback.message.from_user.id in [admin_id_1,admin_id_2]:
         await callback.message.answer(text='Отлично!', reply_markup = button_variety_simple)
-        await callback.message.answer(text = '"1. "Список текущих мероприятий":\n'
+        await callback.message.answer('Перед вами список кнопок:\n\n'
+                                       ' 1. <b>Список текущих мероприятий</b>\n'
                                        "Просмотрите список текущих мероприятий, на которые вы можете зарегистрироваться. Выберите интересующее мероприятие и присоединитесь к нему!\n\n"
-                                        '2. "Мои мероприятия":\n'
-                                    "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!")
+                                        '2. "<b>Мои мероприятия</b>":\n'
+                                    "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!", reply_markup=button_variety_simple,parse_mode=ParseMode.HTML)
         await state.set_state(RegistrationState.opening_menu)
     else:
         await callback.message.answer(text='Отлично!', reply_markup = button_variety)
-        await callback.message.answer(text = '"1. "Список текущих мероприятий":\n'
-                                       "Просмотрите список текущих мероприятий, на которые вы можете зарегистрироваться. Выберите интересующее мероприятие и присоединитесь к нему!\n\n"
-                                        '2. "Мои мероприятия":\n'
-                                    "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!"
-                                    '3. "Список зарегистрировавшихся":\n'
-                                    "Узнайте, количество человек, которые зарегистрировались на мероприятие. Нажмите на кнопку с мероприятием, и список людей будет перед вами")
+        await callback.message.answer(text = 'Перед вами список кнопок:\n\n'
+                                        '1. <b>Список текущих мероприятий</b>\n'
+                                       "Просмотрите список текущих мероприятий, на которые вы можете зарегистрироваться. Выберите интересующее мероприятие,нажмите на него и присоединяйтесь к нему!\n\n"
+                                        '2. <b>Мои мероприятия</b>\n'
+                                    "Узнайте, на какие мероприятия вы уже зарегистрировались. Просмотрите список ваших текущих мероприятий и будьте в курсе всех событий!\n\n"
+                                    '3. <b>Список зарегистрировавшихся</b>:\n'
+                                    "Узнайте информацию о людях, которые зарегистрировались на мероприятие. Нажмите на кнопку с мероприятием, и список людей будет перед вами\n\n"
+                                    '4. <b> Добавить мероприятие</b>\n'
+                                    "Добавляет новое мероприятие в базу данных мероприятий",reply_markup=button_variety,parse_mode=ParseMode.HTML)
         await state.set_state(RegistrationState.opening_menu)
         
 
@@ -94,7 +103,7 @@ async def process_button_1_press(callback: CallbackQuery, state: FSMContext):
 @registration_router.message(F.text == 'Список текущих мероприятий', StateFilter(RegistrationState.opening_menu))
 async def process_current_events(message: Message, state: FSMContext):
     await state.set_state(RegistrationState.show_current_events)
-    cursor.execute("SELECT name FROM events WHERE datetime(registration_expire_date) > datetime('now')")
+    cursor.execute("SELECT name FROM events WHERE datetime(registration_expire_date) > datetime('now','+3 hours')")
     rows = cursor.fetchall()
     if len(rows) > 0:
         buttons = [KeyboardButton(text=row[0]) for row in rows]
@@ -120,7 +129,6 @@ async def process_registration(message: Message, state: FSMContext):
     event_id = event_row[0]  # Получаем event_id из результата запроса
     cursor.execute("SELECT * FROM registrations WHERE tg_id = ? AND event_id = ?", (student_tg_id, event_id))
     existing_registration = cursor.fetchone()
-    
     if existing_registration:
         await message.answer("Вы уже зарегистрированы на это мероприятие")
     else:
@@ -151,71 +159,85 @@ async def go_back_to_events_menu(message: Message, state: FSMContext):
 async def cancel_registration_event(message:Message,state:FSMContext):
     await state.set_state(RegistrationState.show_cancel_events)
     student_tg_id = message.from_user.id
-    cursor.execute("SELECT events.name FROM registrations JOIN events ON registrations.event_id = events.event_id WHERE registrations.tg_id = ? AND events.registration_expire_date > datetime('now')", (student_tg_id,))
+    cursor.execute("SELECT events.name FROM registrations JOIN events ON registrations.event_id = events.event_id WHERE registrations.tg_id = ? AND registrations.is_cancelled IS NULL", (student_tg_id,))
     event_names = cursor.fetchall()
     if len(event_names)>0:
         buttons = [KeyboardButton(text=row[0]) for row in event_names]
-        buttons.append(KeyboardButton(text="Назад"))
-        keyboard = ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True, one_time_keyboard=False)
+        buttons_back = KeyboardButton(text="Назад")
+        keyboard = ReplyKeyboardMarkup(keyboard=[[button] for button in buttons] 
+                                          + [[buttons_back]],resize_keyboard=True, one_time_keyboard=True)
         await message.answer("Выберите мероприятие для отмена регистрации на него:", reply_markup=keyboard)
     else:
-        await message.answer("У вас нет зарегистрированных мероприятий")
+        await message.answer("У вас нет зарегистрированных мероприятий,чтобы их отменить")
+        await state.set_state(RegistrationState.show_current_events)
+        
+        
+        
 
 #добавляем отмену в  registrations
 @registration_router.message((F.text != "Назад"),StateFilter(RegistrationState.show_cancel_events))
 async def process_cancel_registration(message: Message, state: FSMContext):
     event_name = message.text
-    cursor.execute("SELECT name FROM events WHERE datetime(registration_expire_date) > datetime('now')")
+    cursor.execute("SELECT event_id FROM events WHERE name = ?", (event_name,))
     event_id = cursor.fetchone()[0]
     student_tg_id = message.from_user.id
-
     # Проверка, была ли регистрация на мероприятие уже отменена
-    cursor.execute("SELECT is_cancelled FROM registrations WHERE tg_id = ? AND event_id = ?", (student_tg_id, event_id))
-    is_cancelled = cursor.fetchone()
-    
-    if is_cancelled and is_cancelled[0] == 'cancelled':
-        await message.answer("Вы уже отменили регистрацию на это мероприятие")
-    else:
-        cursor.execute("UPDATE registrations SET is_cancelled = 'cancelled' WHERE tg_id = ? AND event_id = ?", (student_tg_id, event_id))
-        conn.commit()
-        await message.answer("Укажите причину отмены регистрации на мероприятие:")
-        await state.set_state(RegistrationState.enter_reason)
+    cursor.execute("UPDATE registrations SET is_cancelled = 'cancelled' WHERE tg_id = ? AND event_id = ?", (student_tg_id, event_id))
+    conn.commit()
+    buttons_back_2 = KeyboardButton(text="Назад")
+    keyboard_new = ReplyKeyboardMarkup(keyboard=[[buttons_back_2]])
+    await message.answer("Укажите причину отмены регистрации на мероприятие:",reply_markup = ReplyKeyboardRemove())
+    await state.set_state(RegistrationState.enter_reason)
 
 
 #назад при выборе мероприятий для отмены
 @registration_router.message(F.text == "Назад", StateFilter(RegistrationState.show_cancel_events))
 async def go_back_to_events_menu(message: Message, state: FSMContext):
-    cursor.execute("SELECT name FROM events WHERE datetime(registration_expire_date) > datetime('now')")
+    cursor.execute("SELECT name FROM events WHERE datetime(registration_expire_date) > datetime('now','+3 hours')")
     rows = cursor.fetchall()
     buttons = [KeyboardButton(text=row[0]) for row in rows]
     buttons_back = KeyboardButton(text="Назад в меню")
     cancel_button = KeyboardButton(text = "Отмена регистрации")
-    keyboard = ReplyKeyboardMarkup(keyboard=[[button] for button in buttons] 
-                                                + [[buttons_back] +[cancel_button]],resize_keyboard=True, one_time_keyboard=False)
-    await message.answer("Выберите мероприятие:", reply_markup=keyboard)
+    keyboard_back = ReplyKeyboardMarkup(keyboard=[[button] for button in buttons] 
+                                        + [[buttons_back] +
+                                          [cancel_button]],resize_keyboard=True, one_time_keyboard=False)
+    await message.answer("Выберите мероприятие:", reply_markup=keyboard_back)
     await state.set_state(RegistrationState.show_current_events)
     
     
     
 #добавляем причину в registrations
-@registration_router.message(StateFilter(RegistrationState.enter_reason))
+@registration_router.message((F.text != "Назад"),StateFilter(RegistrationState.enter_reason))
 async def process_cancel_reason(message: Message, state: FSMContext):
     reason = message.text
     student_tg_id = message.from_user.id
     cursor.execute("UPDATE registrations SET reason = ? WHERE tg_id = ?", (reason, student_tg_id))
     conn.commit()
-    await message.answer("Регистрация на мероприятие успешно отменена. Спасибо за участие!")
-
-
-
-
-
-
-
+    buttons_back_2 = KeyboardButton(text="Назад")
+    keyboard_new = ReplyKeyboardMarkup(keyboard=[[buttons_back_2]],resize_keyboard=True)
+    await message.answer("Регистрация на мероприятие успешно отменена. Спасибо за участие!",reply_markup = keyboard_new)
     
+#кнопка назад после указания причины 
+@registration_router.message(F.text == "Назад",StateFilter(RegistrationState.enter_reason))
+async def сancel_back(message: Message, state: FSMContext):
+    await state.set_state(RegistrationState.show_current_events)
+    cursor.execute("SELECT name FROM events WHERE datetime(registration_expire_date) > datetime('now','+3 hours')")
+    rows = cursor.fetchall()
+    if len(rows) > 0:
+        buttons = [KeyboardButton(text=row[0]) for row in rows]
+        buttons_back = KeyboardButton(text="Назад в меню")
+        buttons_сancel = KeyboardButton(text="Отмена регистрации")
+        keyboard = ReplyKeyboardMarkup(keyboard=[[button] for button in buttons] 
+                                                + [[buttons_back]] + 
+                                                [[buttons_сancel]], resize_keyboard=True, one_time_keyboard=False)
+        await message.answer("Выберите мероприятие, нажмите на него, и вы будете зарегистрированы:\n\n"
+                     "- Отменить регистрацию: Отменить вашу текущую регистрацию на мероприятие\n"
+                     "- Назад в меню: Вернуться в главное меню", reply_markup=keyboard)
 
+    else:
+        await message.answer("На данный момент нет текущих мероприятий")
+        await state.set_state(RegistrationState.opening_menu) 
     
-
 
 #список мероприятий, на которые ты зарегистрирован
 @registration_router.message(F.text == "Мои мероприятия",StateFilter(RegistrationState.opening_menu))
@@ -228,23 +250,24 @@ async def show_my_events(message: Message, state: FSMContext):
     if event_names:
         events_list = "\n".join([event[0] for event in event_names])
         await message.answer(f"Ваши мероприятия:\n{events_list}")
+        await state.set_state(RegistrationState.opening_menu)
     else:
         await message.answer("У вас нет зарегистрированных мероприятий")
-    await state.set_state(RegistrationState.opening_menu)
+        await state.set_state(RegistrationState.opening_menu)
 
    
 #вывод мероприятий для вывода списка зарегистрированных на них
 @registration_router.message(F.text == 'Списки зарегистрировавшихся', StateFilter(RegistrationState.opening_menu))
 async def process_current_events(message: Message, state: FSMContext):
     await state.set_state(RegistrationState.select_event)
-    cursor.execute("SELECT name FROM events WHERE datetime(registration_expire_date) > datetime('now')")
+    cursor.execute("SELECT name FROM events WHERE datetime(registration_expire_date) > datetime('now','+3 hours')")
     rows = cursor.fetchall()
     if len(rows) > 0:
         buttons = [KeyboardButton(text=row[0]) for row in rows]
         buttons_back = KeyboardButton(text="Назад в меню")
         keyboard = ReplyKeyboardMarkup(keyboard=[[button] for button in buttons] 
-                                                + [[buttons_back]],resize_keyboard=True, one_time_keyboard=False)
-        await message.answer("Выберите мероприятие:", reply_markup=keyboard)
+                                                +[[buttons_back]],resize_keyboard=True, one_time_keyboard=False)
+        await message.answer("Выберите мероприятие для просмотра списка зарегистрировавшихся:", reply_markup=keyboard)
     else:
         await message.answer("На данный момент нет текущих мероприятий")
         await state.set_state(RegistrationState.opening_menu)
@@ -267,7 +290,7 @@ async def process_registration(message: Message, state: FSMContext):
     """,(event_id,))
     registered_users = cursor.fetchall()
     if len(registered_users) > 0:
-        response_message = "Список зарегистрированных пользователей на мероприятие:\n"
+        response_message = "<b>Список зарегистрированных пользователей на мероприятие</b>:\n"
         for idx, user in enumerate(registered_users, start=1):
             surname, name, mid_name, grade, number_group = user
             user_info = f"{surname} {name} {mid_name} ИЦТМС {grade}-{number_group}"
@@ -290,7 +313,47 @@ async def go_back_to_events_menu(message: Message, state: FSMContext):
         await state.set_state(RegistrationState.opening_menu)
         await message.answer(f"Вы вернулись в меню", reply_markup=button_variety)
 
+@registration_router.message(F.text == 'Посмотреть информацию о мероприятии', StateFilter(RegistrationState.opening_menu))
+async def process_current_events(message: Message, state: FSMContext):
+    await state.set_state(RegistrationState.show_information_events)
+    cursor.execute("SELECT name FROM events WHERE datetime(registration_expire_date) > datetime('now','+3 hours')")
+    rows = cursor.fetchall()
+    if len(rows) > 0:
+        buttons = [KeyboardButton(text=row[0]) for row in rows]
+        buttons_back = KeyboardButton(text="Назад в меню")
+        keyboard = ReplyKeyboardMarkup(keyboard=[[button] for button in buttons] 
+                                                + [[buttons_back]], resize_keyboard=True, one_time_keyboard=False)
+        await message.answer("Выберите мероприятие для просмотра информации о нём:", reply_markup=keyboard)
+    else:
+        await message.answer("На данный момент нет текущих мероприятий")
+        await state.set_state(RegistrationState.opening_menu)
 
+
+@registration_router.message(F.text != "Назад в меню", StateFilter(RegistrationState.show_information_events))
+async def process_registration(message: Message, state: FSMContext):
+    event_name = message.text
+    cursor.execute("SELECT * from events where name = ?",(event_name,))
+    event_info = cursor.fetchone()
+    response_message = f"<b>Имя мероприятия:</b> {event_info[0]}\n" \
+                           f"<b>Дата проведения:</b> {event_info[1]}\n" \
+                           f"<b>Место проведения:</b> {event_info[2]}\n" \
+                           f"<b>Квота:</b> {event_info[3]}\n" \
+                           f"<b>Информация:</b> {event_info[4]}\n" \
+                           f"<b>Детали участия в мероприятии:</b> {event_info[5]}\n" \
+                           f"<b>Дата истечения регистрации:</b> {event_info[6]}\n" \
+                           f"<b>Количество очков:</b> {event_info[7]}"
+    await message.answer(response_message,parse_mode=ParseMode.HTML)
+    
+@registration_router.message(F.text == "Назад в меню", StateFilter(RegistrationState.show_information_events))
+async def go_back_to_events_menu(message: Message, state: FSMContext):
+    admin_id_1 = int(os.getenv("ADMIN_ID_1"))
+    admin_id_2 = int(os.getenv("ADMIN_ID_2"))
+    if not message.from_user.id in [admin_id_1,admin_id_2]:
+        await state.set_state(RegistrationState.opening_menu)
+        await message.answer(f"Вы вернулись в меню", reply_markup=button_variety_simple)
+    else:
+        await state.set_state(RegistrationState.opening_menu)
+        await message.answer(f"Вы вернулись в меню", reply_markup=button_variety)
 
 
 
@@ -298,15 +361,8 @@ async def go_back_to_events_menu(message: Message, state: FSMContext):
 @registration_router.message(F.text == "Добавить мероприятие",StateFilter(RegistrationState.opening_menu))
 async def call_data(message:Message,state:FSMContext):
     await state.set_state(RegistrationState.add_event)
-    load_dotenv()
-    admin_id_1 = int(os.getenv("ADMIN_ID_1"))
-    admin_id_2 = int(os.getenv("ADMIN_ID_2"))
-    if not message.from_user.id in [admin_id_1,admin_id_2]:
-        await message.answer(text='У вас нет доступа к этой функции')
-        await state.clear()
-    else:
-        await message.answer(text='Пожалуйста, введите название мероприятия:')
-        await state.set_state(RegistrationState.fill_name_event) 
+    await message.answer(text='<b>Введите название мероприятия:</b>',reply_markup = ReplyKeyboardRemove(),parse_mode=ParseMode.HTML)
+    await state.set_state(RegistrationState.fill_name_event) 
  
                 
 
@@ -314,7 +370,7 @@ async def call_data(message:Message,state:FSMContext):
 @registration_router.message(StateFilter(RegistrationState.fill_name_event))
 async def process_name_event_sent(message: Message, state: FSMContext):
     await state.update_data(name_event=message.text)
-    await message.answer(text='Спасибо!\n\nА теперь введите дату мероприятия в формате ДД.ММ.ГГ(Например, 12.01.2004):')
+    await message.answer(text='<b>Введите дату мероприятия в формате ДД.ММ.ГГ (Например, 12.01.2004):</b>',parse_mode=ParseMode.HTML)
     await state.set_state(RegistrationState.fill_date_event)
 
 
@@ -325,14 +381,14 @@ async def process_name_event_sent(message: Message, state: FSMContext):
 @registration_router.message(StateFilter(RegistrationState.fill_date_event))
 async def process_date_event_sent(message: Message, state: FSMContext):
     await state.update_data(date_event=message.text)
-    await message.answer(text='Спасибо!\n\nА теперь введите место мероприятия:')
+    await message.answer(text='<b>Введите место мероприятия:</b>',parse_mode=ParseMode.HTML)
     await state.set_state(RegistrationState.fill_place_event)
 
 
 @registration_router.message(StateFilter(RegistrationState.fill_place_event))
 async def process_date_event_sent(message: Message, state: FSMContext):
     await state.update_data(place_event=message.text)
-    await message.answer(text='Спасибо!\n\nА теперь введите квоту мероприятия:')
+    await message.answer(text='<b>Введите квоту мероприятия:</b>',parse_mode=ParseMode.HTML)
     await state.set_state(RegistrationState.fill_kvota)
 
     
@@ -341,7 +397,7 @@ async def process_date_event_sent(message: Message, state: FSMContext):
 @registration_router.message(StateFilter(RegistrationState.fill_kvota),lambda x: x.text.isdigit())
 async def process_mid_name_sent(message: Message, state: FSMContext):
     await state.update_data(kvota=message.text)
-    await message.answer(text='Спасибо!\n\nА теперь введите информацию о мероприятии:')
+    await message.answer(text='<b>Введите информацию о мероприятии:</b>',parse_mode=ParseMode.HTML)
     await state.set_state(RegistrationState.fill_info_event)
     
 #неправильный ввод квоты
@@ -359,7 +415,7 @@ async def warning_not_kvota_name(message: Message):
 @registration_router.message(StateFilter(RegistrationState.fill_info_event))
 async def process_age_sent(message: Message, state: FSMContext):
     await state.update_data(info=message.text)
-    await message.answer(text='Введите детали участия в мероприятии(постоять у стендах, просто сфотографироваться):')
+    await message.answer(text='<b>Введите детали участия в мероприятии (постоять у стендах, просто сфотографироваться):</b>',parse_mode=ParseMode.HTML)
     await state.set_state(RegistrationState.fill_details_event)
 
 
@@ -367,20 +423,20 @@ async def process_age_sent(message: Message, state: FSMContext):
 @registration_router.message(StateFilter(RegistrationState.fill_details_event))
 async def process_age_sent(message: Message, state: FSMContext):
     await state.update_data(details=message.text)
-    await message.answer(text='Теперь введите дату истечения регистрации в формате год - месяц - число час:минута:секунда (например, 2024-02-20 16:00:00):')
+    await message.answer(text='<b>Введите дату истечения регистрации в формате год-месяц-число час:минута:секунда (например, 2024-02-20 16:00:00):</b>',parse_mode=ParseMode.HTML)
     await state.set_state(RegistrationState.fill_registration_expire_date)
     
 
 @registration_router.message(StateFilter(RegistrationState.fill_registration_expire_date))
 async def process_mid_name_sent(message: Message, state: FSMContext):
     await state.update_data(expire_data=message.text)
-    await message.answer(text='А теперь введите количество очков за участие в мероприятии:')
+    await message.answer(text='<b>Введите количество очков за участие в мероприятии:</b>',parse_mode=ParseMode.HTML)
     await state.set_state(RegistrationState.fill_points)
 
     
 
 #ввод группы
-@registration_router.message(StateFilter(RegistrationState.fill_points),lambda x: x.text.isdigit())
+@registration_router.message(StateFilter(RegistrationState.fill_points), lambda x: x.text.isdigit())
 async def process_group_sent(message: Message, state: FSMContext):
     await state.update_data(points=message.text)
     data = await state.get_data()
@@ -392,19 +448,25 @@ async def process_group_sent(message: Message, state: FSMContext):
     details = data.get("details")
     expire_data = data.get("expire_data")
     points = data.get("points")
-    try:
-    # Вызов функции для добавления данных в базу данных
-        await insert_event(name_event, date_event, place_event, kvota, info, details, expire_data, points)
+    cursor.execute("SELECT event_id FROM events WHERE name = ?", (name_event,))
+    event_id = cursor.fetchone()
+    message.answer(text = f"EVENT_ID:{event_id}")
+    if event_id is None:
+        # Вызов функции для добавления данных в базу данных
+        cursor.execute('''
+         INSERT INTO events (name, date, place, kvota, info, details, registration_expire_date, points)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+     ''', (name_event, date_event, place_event, kvota, info, details, expire_data, points))
+        conn.commit()
         await state.set_state(RegistrationState.opening_menu)
         await message.answer(
-        text='Спасибо! Ваши данные сохранены!\n\n'
-             'Вы вышли из процесса добавления',reply_markup = button_variety
-        
-    )
-    except sqlite3.IntegrityError:
+            text='Ваше мероприятие сохранено!\n\n'
+                 'Вы вышли из процесса добавления', reply_markup=button_variety
+        )
+    else:
         await state.set_state(RegistrationState.opening_menu)
-        await message.answer("Мероприятие с таким именем уже существует. Пожалуйста, введите другое имя мероприятия.",reply_markup = button_variety)
-        
+        await message.answer("Такое меропрятие было уже добавлено.", reply_markup=button_variety)
+
 
     
 #неправильный ввод количества очков

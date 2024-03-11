@@ -28,6 +28,7 @@ class RegistrationState(StatesGroup):
     enter_reason = State()
     select_event = State()
     show_registered_members = State()
+    show_information_events = State()
     fill_name_event = State()
     fill_date_event = State()
     fill_kvota = State()
